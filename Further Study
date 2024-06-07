@@ -1,0 +1,38 @@
+# Registration and authentication logic in models.py
+# Prevent users from accessing register or login forms if a username is already in the session
+
+@app.route('/404')
+def page_not_found():
+    return render_template('404.html'), 404
+
+@app.route('/401')
+def unauthorized():
+    return render_template('401.html'), 401
+
+# Add 'is_admin' column to users table
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
+# Display helpful error messages for form submissions
+@app.route('/submit_form', methods=['POST'])
+def submit_form():
+    if form.validate_on_submit():
+        flash('Form submitted successfully!', 'success')
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'Error in field {getattr(form, field).label.text}: {error}', 'danger')
+
+# Authentication and authorization tests
+def test_authentication():
+    # Test user login
+    assert client.post('/login', data=dict(username='test_user', password='password')).status_code == 200
+
+# Challenge: Password reset functionality
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    reset_token = db.Column(db.String(100), unique=True)
